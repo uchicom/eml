@@ -67,25 +67,37 @@ public class MailFrame extends JFrame {
 				Account account = new Account(config.getProperty(key + ".name"),
 						config.getProperty(key + ".user"),
 						config.getProperty(key + ".domain"),
-						config.getProperty(key + ".password"));
-				accountList.add(account);
+						config.getProperty(key + ".password"),
+						config.getProperty(key + ".path"));
+				if (checkInput(account)) {
+					accountList.add(account);
+				}
 			}
 
 		}
 		return accountList;
 	}
-
+	private boolean checkInput(Account account) {
+		if (account.getUser() == null) {
+			return false;
+		} else if (account.getDomain() == null) {
+			return false;
+		} else if (account.getName() == null) {
+			return false;
+		} else if (account.getPassword() == null) {
+			return false;
+		} else {
+			return true;
+		}
+	}
 	/**
 	 * 検索処理
 	 */
 	public void search() {
+		accountList.forEach((account)-> {
 		Thread thread = new Thread() {
 			public void run() {
-				accountList.forEach((account)-> {
-				List<Mail> mailList = account.getMail(config.getProperty("1.domain"),
-						config.getProperty("1.user"),
-						config.getProperty("1.password"));
-				});
+				List<Mail> mailList = account.getMail();
 //				if (mailList.size() > 0) {
 ////					model.addList(mailList);
 //
@@ -96,6 +108,7 @@ public class MailFrame extends JFrame {
 		};
 		thread.setDaemon(true);
 		thread.start();
+		});
 	}
 
 	/**

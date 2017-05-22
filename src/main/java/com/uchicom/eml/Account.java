@@ -73,6 +73,7 @@ public class Account {
  	private	String domain;
 	private String user;
 	private String password;
+	private String path;
 	private int pop3Port = 110;
 	private int smtpPort = 25;
 
@@ -80,11 +81,18 @@ public class Account {
 	private JLabel statusLabel = new JLabel();
 	private Map<String, String> uidlMap = new HashMap<String, String>();
 
-	public Account(String name, String user, String domain, String password) {
+	public Account(String name, String user, String domain, String password, String path) {
 		this.name = name;
 		this.user = user;
 		this.domain = domain;
 		this.password = password;
+		this.path = path;
+		if (path != null) {
+			File file = new File(path);
+			if (!file.exists()) {
+				file.mkdirs();
+			}
+		}
 	}
 	public String getName() {
 		return name;
@@ -143,7 +151,7 @@ public class Account {
 
 	@SuppressWarnings("unchecked")
 	public void loadUidlMap() {
-		File uidlFile = new File("./data/uidl.map");
+		File uidlFile = new File(path, "uidl.map");
 		if (uidlFile.exists()) {
 			try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(uidlFile));){
 				uidlMap = (Map<String, String>)ois.readObject();
@@ -160,7 +168,7 @@ public class Account {
 
 	public void saveUidlMap() {
 
-		File uidlFile = new File("./data/uidl.map");
+		File uidlFile = new File(path, "uidl.map");
 		ObjectOutputStream oos = null;
 		try {
 			if (!uidlFile.exists()) {
@@ -180,12 +188,12 @@ public class Account {
 				}
 			}
 		}
-		File file = new File("./data/.lock");
+		File file = new File(path, ".lock");
 		file.delete();
 	}
 
 	public void loadMail() {
-		File mailboxFile = new File("./data/mailbox/");
+		File mailboxFile = new File(path, "mailbox");
 		if (mailboxFile.exists()) {
 			File[] mails = mailboxFile.listFiles(new FileFilter() {
 
@@ -320,7 +328,7 @@ public class Account {
 	 * @param args
 	 * @return
 	 */
-	public List<Mail> getMail(String server, String username, String password) {
+	public List<Mail> getMail() {
 
 		statusLabel.setText("接続");
 		progressBar.setVisible(true);
@@ -337,7 +345,7 @@ public class Account {
 
 			progressBar.setMinimum(0);
 			progressBar.setMaximum(100);
-			socket.connect(new InetSocketAddress(server, 8115));
+			socket.connect(new InetSocketAddress(domain, 8115));
 			now = System.currentTimeMillis();
 			System.out.println("connect:" + (now - start) + "[ms]");
 			start = System.currentTimeMillis();
@@ -346,7 +354,7 @@ public class Account {
 			PrintStream ps = new PrintStream(socket.getOutputStream());
 			String line = br.readLine();
 
-			if (!login(br, ps, username, password)) {
+			if (!login(br, ps, user, password)) {
 				quit(br, ps);
 			}
 
@@ -401,7 +409,7 @@ public class Account {
 				quit(br, ps);
 				return mailList;
 			}
-			File mailboxFile = new File("./data/mailbox/");
+			File mailboxFile = new File(path, "mailbox");
 			if (!mailboxFile.exists()) {
 				mailboxFile.mkdirs();
 			}
@@ -554,14 +562,14 @@ public class Account {
 	public void quit(BufferedReader br, PrintStream ps) throws IOException {
 		ps.print("QUIT\r\n");
 		ps.flush();
-		System.out.println(br.readLine());
+		System.out.println("QUIT:" + br.readLine());
 	}
 
 	public int stat(BufferedReader br, PrintStream ps) throws IOException {
 		ps.print("STAT\r\n");
 		ps.flush();
 		String line = br.readLine();
-		System.out.println(line);
+		System.out.println("STAT" + line);
 		int index = -1;
 		if (isOK(line)) {
 			String[] splits = line.split(" ");
@@ -575,7 +583,7 @@ public class Account {
 		ps.print("UIDL " + index + "\r\n");
 		ps.flush();
 		String line = br.readLine();
-		System.out.println(line);
+		System.out.println("UIDL:" + line);
 		String id = null;
 
 		if (isOK(line)) {

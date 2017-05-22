@@ -94,7 +94,7 @@ public class Mail {
 				strBuff.append(value.substring(0, startIndex));
 			}
 			while (startIndex >= 0 && endIndex >= startIndex + 2) {
-				System.out.println(startIndex);
+//				System.out.println(startIndex);
 				String base64 = value.substring(startIndex + 2, endIndex);
 //				System.out.println(subject);
 //				System.out.println(base64);
@@ -104,8 +104,8 @@ public class Mail {
 						if ("B".equals(splits[1])) {
 //							System.out.println("test2");
 							String val = new String(java.util.Base64.getDecoder().decode(splits[2]), splits[0]);
-							System.out.println(val);
-							System.out.println(val.length());
+//							System.out.println(val);
+//							System.out.println(val.length());
 							strBuff.append(val);
 						} else if ("Q".equals(splits[1])) {
 //							System.out.println("test");
@@ -220,7 +220,7 @@ public class Mail {
 				bContentDisposition = bHeadBuff.toString();
 				break;
 			}
-			System.out.println(bContentTransferEncoding);
+//			System.out.println(bContentTransferEncoding);
 			String bCharset = getCharset(bContentType);
 			int bEnd = body.indexOf("--" + boundary , headEndIndex);
 //			System.out.println(bEnd);
@@ -250,7 +250,7 @@ public class Mail {
 				}
 				lastIndex = searchIndex;
 			}
-			System.out.println(tempList);
+//			System.out.println(tempList);
 
 
 //			System.out.println(heads.length + ":" + body.substring(headStartIndex, headEndIndex));
@@ -437,13 +437,13 @@ public class Mail {
 			if (charsetStartIndex >= 0) {
 	    		int charsetEndIndex = contentType.indexOf(";", charsetStartIndex);
 	    		if (charsetEndIndex > charsetStartIndex) {
-	    			charset = contentType.substring(charsetStartIndex + 8, charsetEndIndex).replaceAll("\"", "");
+	    			charset = contentType.substring(charsetStartIndex + 8, charsetEndIndex).replaceAll("=* *\"", "");
 	    		} else {
-	    			charset = contentType.substring(charsetStartIndex + 8).replaceAll("\"",  "");
+	    			charset = contentType.substring(charsetStartIndex + 8).replaceAll("=* *\"",  "");
 	    		}
 			}
 		}
-		System.out.println("charset" +charset);
+		System.out.println("charset:" +charset);
 		return charset;
 	}
 	private String decodeHeader(String value) {
