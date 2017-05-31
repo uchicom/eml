@@ -17,18 +17,13 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.EventObject;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -46,7 +41,6 @@ import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableColumn;
 
-import com.uchicom.eml.util.FileComparator;
 import com.uchicom.eml.util.LineNumberView;
 
 /**
@@ -55,15 +49,6 @@ import com.uchicom.eml.util.LineNumberView;
  */
 public class Account {
 
-	SimpleDateFormat format = new SimpleDateFormat(
-			"EEE, d MMM yyyy HH:mm:ss Z", Locale.ENGLISH);
-	SimpleDateFormat format2 = new SimpleDateFormat("d MMM yyyy HH:mm:ss Z",
-			Locale.ENGLISH);
-	private static final int NONE = 0;
-	private static final int SUBJECT = 1;
-	private static final int BODY = 2;
-	private static final int CONTENT_TYPE = 3;
-	private static final int OTHER = 99;// とりあえずその他
 
 	private MailTableModel model = new MailTableModel(new ArrayList<>(), 5);
 	private JTable table;
@@ -74,8 +59,8 @@ public class Account {
 	private String user;
 	private String password;
 	private String path;
-	private int pop3Port = 110;
-	private int smtpPort = 25;
+	private int pop3Port = Constants.DEFAULT_PORT_POP3;
+	private int smtpPort = Constants.DEFAULT_PORT_SMTP;
 
 
 	private JLabel statusLabel = new JLabel();
@@ -188,8 +173,6 @@ public class Account {
 				}
 			}
 		}
-		File file = new File(path, ".lock");
-		file.delete();
 	}
 
 	public void loadMail() {
@@ -203,13 +186,13 @@ public class Account {
 				}
 
 			});
-			Arrays.sort(mails, new FileComparator());
 			for (File file : mails) {
+//				Thread thread = new Thread(()->{
 				try (GZIPInputStream inputStream = new GZIPInputStream(new FileInputStream(file));){
 //					mailList.add(analyze(new BufferedReader(
 //							new InputStreamReader(new FileInputStream(mail))), null));
-					Mail mail = analyze(new BufferedReader(
-							new InputStreamReader(inputStream)), null, true);
+					Mail mail = Mail.analyze(new BufferedReader(
+							new InputStreamReader(inputStream)), null, false);
 					mail.setBody(null);
 					mail.setFile(file);
 					this.model.addRow(mail);
@@ -218,6 +201,9 @@ public class Account {
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
+//				});
+//				thread.setDaemon(true);
+//				thread.start();
 			}
 			System.out.println("mail:" + model.getRowCount());
 //			this.model.addList(mailList);
@@ -225,101 +211,7 @@ public class Account {
 	}
 
 
-	private Mail analyze(BufferedReader br, OutputStream os, boolean retentionBody)
-			throws IOException {
 
-		long start = System.currentTimeMillis();
-		long now = 0;
-		String line = br.readLine();
-		boolean isBody = false;
-		StringBuffer bodyBuff = new StringBuffer();
-		StringBuffer contentTypeBuff = new StringBuffer();
-		Mail mail = new Mail();
-		int status = NONE;
-		StringBuffer subjectBuff = new StringBuffer();
-		while (line != null && !".".equals(line)) {
-			if (!isBody && "".equals(line)) {
-				if (os == null && !retentionBody) {
-					break;
-				}
-				isBody = true;
-				status = BODY;
-			} else if (isBody) {
-				if (retentionBody) {
-					if (line.length() > 0 && line.charAt(0) == '.') {
-						bodyBuff.append(line.substring(1));
-					} else {
-						bodyBuff.append(line);
-					}
-					bodyBuff.append("\r\n");
-				}
-			} else if (line.matches("From: .*")) {
-				status = OTHER;
-				mail.setFrom(line.substring(6));
-			} else if (line.matches("To: .*")) {
-				status = OTHER;
-				mail.setTo(line.substring(4));
-			} else if (line.matches("Date: .*")) {
-				status = OTHER;
-				int comma = line.indexOf(',');
-				if (comma >= 0) {
-					try {
-						mail.setDate(format.parse(line.substring(6)));
-					} catch (ParseException e) {
-						System.err.println(e.getMessage());
-					}
-				} else {
-
-					try {
-						mail.setDate(format2.parse(line.substring(6)));
-					} catch (ParseException e) {
-						System.err.println(e.getMessage());
-					}
-				}
-			} else if (line.matches("Content-Type: .*")) {
-				// System.out.println(i + ":" +line);
-				contentTypeBuff.append(line.substring(13));
-				status = CONTENT_TYPE;
-				// boundary = line.substring(line.indexOf("boundary=") + 9);
-				// System.out.println(boundary);
-			} else if (line.matches("Content-Transfer-Encoding\\: .*")) {
-				// System.out.println(i + ":" +line);
-				mail.setEncoding(line.substring(27));
-			} else if (line.startsWith("Subject:")) {
-				status = SUBJECT;
-				if (line.length() > 9) {
-					subjectBuff.append(line.substring(9));
-				}
-			} else if (line.startsWith(" ") || line.startsWith("\t")) {
-				switch (status) {
-				case SUBJECT:
-					subjectBuff.append(line.substring(1));
-					break;
-				case CONTENT_TYPE:
-					contentTypeBuff.append(line.substring(1));
-					break;
-				}
-			} else {
-				status = OTHER;
-			}
-			if (os != null) {
-				os.write(line.getBytes());
-				os.write("\r\n".getBytes());
-			}
-			line = br.readLine();
-		}
-
-		now = System.currentTimeMillis();
-		System.out.println("retr:" + (now - start) + "[ms]");
-		start = System.currentTimeMillis();
-
-		mail.setContentType(contentTypeBuff.toString());
-		mail.setSubject(subjectBuff.toString());
-		mail.setBody(bodyBuff.toString());
-
-		// 終了
-		return mail;
-	}
 	/**
 	 * USER ユーザID設定 PASS パスワード設定 またはAPOPを指定 ログイン後 STAT 最大のメールインデックスを取得 UIDL
 	 * で最大のユニークIDを取得し、保存しているUIDLに含まれていなければ検索する,含まれていれば検索しない UIDL
@@ -328,13 +220,12 @@ public class Account {
 	 * @param args
 	 * @return
 	 */
-	public List<Mail> getMail() {
+	public void downloadAllMail() {
 
 		statusLabel.setText("接続");
 		progressBar.setVisible(true);
 		long start1 = System.currentTimeMillis();
 		System.out.println("開始");
-		List<Mail> mailList = new ArrayList<Mail>();
 
 
 		long start = System.currentTimeMillis();
@@ -345,7 +236,7 @@ public class Account {
 
 			progressBar.setMinimum(0);
 			progressBar.setMaximum(100);
-			socket.connect(new InetSocketAddress(domain, 8115));
+			socket.connect(new InetSocketAddress(domain, pop3Port));
 			now = System.currentTimeMillis();
 			System.out.println("connect:" + (now - start) + "[ms]");
 			start = System.currentTimeMillis();
@@ -383,7 +274,7 @@ public class Account {
 			} else {
 				if (uidlMap.containsKey(id)) {
 					// 新しいメールはない。
-					return mailList;
+					return;
 				}
 			}
 
@@ -407,7 +298,7 @@ public class Account {
 				progressBar.setValue(100);
 				statusLabel.setText("QUIT");
 				quit(br, ps);
-				return mailList;
+				return;
 			}
 			File mailboxFile = new File(path, "mailbox");
 			if (!mailboxFile.exists()) {
@@ -432,11 +323,13 @@ public class Account {
 
 					statusLabel.setText("RETR" + (i + 1) );
 				ps.print("RETR " + (i + 1) + "\r\n");
+
+				System.out.println("RETR:" + br.readLine());
 				// ps.print("TOP " + (i + 1)+ " 0\r\n");
 				ps.flush();
 				File file = new File(mailboxFile, name);
 				try (GZIPOutputStream pw = new GZIPOutputStream(new FileOutputStream(file));) {
-					Mail mail = analyze(br, pw, true);
+					Mail mail = Mail.analyze(br, pw, true);
 	//				mail.getTempList();
 					mail.setBody(null);
 					mail.setFile(file);
@@ -447,18 +340,16 @@ public class Account {
 			progressBar.setValue(100);
 			statusLabel.setText("QUIT");
 			quit(br, ps);
-			// br.close();
-			// ps.close();
+//			 br.close();
+//			 ps.close();
 			progressBar.setVisible(false);
 			statusLabel.setText("");
 
 		} catch (IOException e) {
 			e.printStackTrace();
-			return null;
 		}
 
 		System.out.println("終了:" + (System.currentTimeMillis() - start1) / 1000d);
-		return mailList;
 	}
 
 	public JPanel dispList() {
@@ -505,7 +396,7 @@ public class Account {
 				if (e.getClickCount() >= 2) {
 					Mail mail = model.getRow(table.getSelectedRow());
 					try (BufferedReader reader = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(mail.getFile()))))) {
-						mail = analyze(reader, null, true);
+						mail = Mail.analyze(reader, null, true);
 						JTextArea area = new JTextArea(mail.getBody());
 						area.setEditable(false);
 						Insets inset = area.getInsets();
@@ -519,6 +410,7 @@ public class Account {
 						pane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 
 						JFrame frame = new JFrame(mail.getSubject());
+						frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 						frame.getContentPane().add(pane);
 						frame.pack();
 						frame.setVisible(true);

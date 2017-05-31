@@ -37,8 +37,8 @@ public class MailTableModel extends DefaultTableModel {
 			val = mail.getSubject();
 			break;
 		case 4:
-			if (mail.getTempList() != null) {
-				val = String.valueOf(mail.getTempList().size());
+			if (mail.getTempCount() != 0) {
+				val = String.valueOf(mail.getTempCount());
 			} else {
 				val = "";
 			}

@@ -30,13 +30,6 @@ public class MailFrame extends JFrame {
 
 
 	private JButton searchButton = new JButton(new GetAction(this));
-//	private JTextField domainField = new JTextField();
-//	private JTextField userField = new JTextField();
-//	private JPasswordField passwordField = new JPasswordField();
-
-
-//
-//	private List<Mail> mailList = new ArrayList<Mail>();
 
 	List<Account> accountList = new ArrayList<>();
 
@@ -49,15 +42,21 @@ public class MailFrame extends JFrame {
 		loadAccount();
 		initComponents(args);
 	}
+
+	/**
+	 * アカウント情報読み込み
+	 */
 	private void loadAccount() {
-		List<Account> accountList = createAccountList();
-		for (Account account : accountList) {
+		createAccountList().forEach(account->{
 			// 検索済みのメールをロードする。
 			account.loadMail();
 			// UIDLマップをロードする。
 			account.loadUidlMap();
-		}
+		});
 	}
+	/**
+	 * アカウント情報リストを取得します
+	 */
 	private List<Account> createAccountList() {
 		//プロパティからアカウント情報抽出（パスワードは暗号化しておかないと）
 		//gzipプロパティにして暗号化
@@ -77,6 +76,11 @@ public class MailFrame extends JFrame {
 		}
 		return accountList;
 	}
+	/**
+	 * 入力内容チェック
+	 * @param account
+	 * @return
+	 */
 	private boolean checkInput(Account account) {
 		if (account.getUser() == null) {
 			return false;
@@ -95,24 +99,16 @@ public class MailFrame extends JFrame {
 	 */
 	public void search() {
 		accountList.forEach((account)-> {
-		Thread thread = new Thread() {
-			public void run() {
-				List<Mail> mailList = account.getMail();
-//				if (mailList.size() > 0) {
-////					model.addList(mailList);
-//
-//				} else {
-//					JOptionPane.showMessageDialog(MailFrame.this, "新着メールはありませんでした。");
-//				}
-			}
-		};
-		thread.setDaemon(true);
-		thread.start();
+			Thread thread = new Thread(()->{
+				account.downloadAllMail();
+			});
+			thread.setDaemon(true);
+			thread.start();
 		});
 	}
 
 	/**
-	 *
+	 * プロパティファイル読込
 	 */
 	private void loadProperties() {
 		try (FileInputStream fis = new FileInputStream("conf/eml.properties")) {
@@ -123,6 +119,10 @@ public class MailFrame extends JFrame {
 			e.printStackTrace();
 		}
 	}
+	/**
+	 * 画面初期化
+	 * @param args
+	 */
 	private void initComponents(String[] args) {
 		// メニュー設定
 		setJMenuBar(createJMenuBar());
@@ -134,7 +134,6 @@ public class MailFrame extends JFrame {
 				accountList.forEach((account)-> {
 					account.saveUidlMap();
 				});
-				MailFrame.this.dispose();
 			}
 		});
 		JPanel northPanel = new JPanel(new GridLayout(1, 4));
@@ -159,9 +158,10 @@ public class MailFrame extends JFrame {
 
 	}
 
-
-
-
+	/**
+	 * メニュー作成
+	 * @return
+	 */
 	public JMenuBar createJMenuBar() {
 		JMenuBar menuBar = new JMenuBar();
 		JMenu menu = new JMenu("ファイル");

@@ -46,4 +46,10 @@ public class Constants {
 	/** このアプリケーションについての参照URL */
 	public static final String URL_ABOUT = "url.about";
 
+
+
+	//初期値
+	public static int DEFAULT_PORT_POP3 = 8115;
+	public static int DEFAULT_PORT_SMTP = 25;
+
 }
