@@ -27,6 +27,7 @@ public class Mail {
 	private static final int SUBJECT = 1;
 	private static final int BODY = 2;
 	private static final int CONTENT_TYPE = 3;
+	private static final int CONTENT_TRANSFER_ENCODING = 4;
 	private static final int OTHER = 99;// とりあえずその他
 
 	private File file;
@@ -87,7 +88,11 @@ public class Mail {
 		}
 	}
 	public void setSubject(String subject) {
-		this.subject = MailUtil.decode64(subject);
+		if (subject.indexOf("=?") >= 0) {
+			this.subject = MailUtil.decode64(subject);
+		} else {
+			this.subject = MailUtil.decode(subject, encoding, charset);
+		}
 	}
 
 	public String getBody() {
@@ -160,6 +165,7 @@ public class Mail {
 		boolean isBody = false;
 		StringBuffer bodyBuff = new StringBuffer();
 		StringBuffer contentTypeBuff = new StringBuffer();
+		StringBuffer contentTransferEncodingBuff = new StringBuffer();
 		Mail mail = new Mail();
 		int status = NONE;
 		StringBuffer subjectBuff = new StringBuffer();
@@ -184,18 +190,18 @@ public class Mail {
 					}
 					bodyBuff.append("\r\n");
 				}
-			} else if (line.matches("[Ff]rom\\: .*")) {
+			} else if (line.matches("[Ff]rom\\:.*")) {
 				status = OTHER;
-				mail.setFrom(line.substring(6));
-			} else if (line.matches("[tT]o\\: .*")) {
+				mail.setFrom(line.substring(5).trim());
+			} else if (line.matches("[tT]o\\:.*")) {
 				status = OTHER;
-				mail.setTo(line.substring(4));
-			} else if (line.matches("[dD]ate\\: .*")) {
+				mail.setTo(line.substring(3).trim());
+			} else if (line.matches("[dD]ate\\:.*")) {
 				status = OTHER;
 				int comma = line.indexOf(',');
 				if (comma >= 0) {
 					try {
-						mail.setDate(format.parse(line.substring(6)));
+						mail.setDate(format.parse(line.substring(5).trim()));
 					} catch (ParseException e) {
 						System.err.println(e.getMessage());
 					}
@@ -207,18 +213,19 @@ public class Mail {
 						System.err.println(e.getMessage());
 					}
 				}
-			} else if (line.matches("[Cc]ontent-[tT]ype\\: .*")) {
-				contentTypeBuff.append(line.substring(13));
+			} else if (line.matches("[Cc]ontent-[tT]ype\\:.*")) {
+				contentTypeBuff.append(line.substring(12).trim());
 				status = CONTENT_TYPE;
 				// boundary = line.substring(line.indexOf("boundary=") + 9);
 				// System.out.println(boundary);
-			} else if (line.matches("[Cc]ontent-[Tt]ransfer-[Ee]ncoding\\: .*")) {
+			} else if (line.matches("[Cc]ontent-[Tt]ransfer-[Ee]ncoding\\:.*")) {
 				// System.out.println(i + ":" +line);
-				mail.setEncoding(line.substring(27));
-			} else if (line.matches("[Ss]ubject\\: .*")) {
+				contentTransferEncodingBuff.append(line.substring(26).trim());
+				status = CONTENT_TRANSFER_ENCODING;
+			} else if (line.matches("[Ss]ubject\\:.*")) {
 				status = SUBJECT;
-				if (line.length() > 9) {
-					subjectBuff.append(line.substring(9));
+				if (line.length() > 7) {
+					subjectBuff.append(line.substring(8).trim());
 				}
 			} else if (line.startsWith(" ") || line.startsWith("\t")) {
 				switch (status) {
@@ -227,6 +234,9 @@ public class Mail {
 					break;
 				case CONTENT_TYPE:
 					contentTypeBuff.append(line.substring(1));
+					break;
+				case CONTENT_TRANSFER_ENCODING:
+					contentTransferEncodingBuff.append(line.substring(1));
 					break;
 				}
 			} else {
@@ -243,6 +253,7 @@ public class Mail {
 		start = System.currentTimeMillis();
 
 		mail.setContentType(contentTypeBuff.toString());
+		mail.setEncoding(contentTransferEncodingBuff.toString());
 		mail.setSubject(subjectBuff.toString());
 		mail.setBody(bodyBuff.toString());
 
