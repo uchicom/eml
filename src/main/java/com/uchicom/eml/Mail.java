@@ -88,10 +88,15 @@ public class Mail {
 		}
 	}
 	public void setSubject(String subject) {
-		if (subject.indexOf("=?") >= 0) {
-			this.subject = MailUtil.decode64(subject);
-		} else {
-			this.subject = MailUtil.decode(subject, encoding, charset);
+		try {
+			if (subject.indexOf("=?") >= 0) {
+				this.subject = MailUtil.decode64(subject);
+			} else {
+				this.subject = MailUtil.decode(subject, encoding, charset);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			this.subject = subject;
 		}
 	}
 

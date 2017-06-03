@@ -3,9 +3,8 @@ package com.uchicom.eml.util;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
+import java.util.Base64;
 
-import com.sun.org.apache.xml.internal.security.exceptions.Base64DecodingException;
-import com.sun.org.apache.xml.internal.security.utils.Base64;
 
 /**
  * @author uchicom: Shigeki Uchiyama
@@ -51,28 +50,21 @@ public class MailUtil {
 		int startIndex = value.indexOf("=?");
 		int encodingEndIndex = value.indexOf("?", startIndex + 2);
 		int typeEndIndex = value.indexOf("?", encodingEndIndex + 1);
-		int endIndex = value.indexOf("?=", startIndex + 1);
+		int endIndex = value.indexOf("?=", typeEndIndex + 1);
 		if (startIndex >= 0 && endIndex >= startIndex) {
 			StringBuffer strBuff = new StringBuffer();
 			if (startIndex > 0) {
 				strBuff.append(value.substring(0, startIndex));
 			}
 			while (startIndex >= 0 && endIndex >= startIndex + 2) {
-//				System.out.println(startIndex);
 				String base64 = value.substring(startIndex + 2, endIndex);
-//				System.out.println(subject);
-//				System.out.println(base64);
 				String[] splits = base64.split("\\?");
 				try {
 					if (splits.length  == 3) {
 						if ("B".equals(splits[1])) {
-//							System.out.println("test2");
 							String val = new String(java.util.Base64.getDecoder().decode(splits[2]), splits[0]);
-//							System.out.println(val);
-//							System.out.println(val.length());
 							strBuff.append(val);
 						} else if ("Q".equals(splits[1])) {
-//							System.out.println("test");
 							String val = new String(decodeQ(splits[2]), splits[0]);
 							strBuff.append(val);
 						}
@@ -95,7 +87,7 @@ public class MailUtil {
 	}
 
 	public static byte[] decodeQ(String message) {
-//		System.out.println(message);
+		System.out.println(message);
 		char[] chars = message.toCharArray();
 		byte[] bytes = new byte[chars.length];
 
@@ -157,14 +149,11 @@ public class MailUtil {
 			} else if ("quoted-printable".equals(contentTransferEncoding.toLowerCase())) {
 				decoded = new String(MailUtil.decodeQ(encoded), charset);
 			} else if ("base64".equals(contentTransferEncoding.toLowerCase())) {
-				decoded = new String(Base64.decode(encoded), charset);
+				decoded = new String(Base64.getDecoder().decode(encoded), charset);
 			} else {
 				decoded = new String(encoded.getBytes(), charset);
 			}
 		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (Base64DecodingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -190,16 +179,12 @@ public class MailUtil {
 				try {
 					if (splits.length  == 3) {
 						if ("B".equals(splits[1])) {
-//							System.out.println("test2");
-							strBuff.append(new String(Base64.decode(splits[2]), splits[0]));
+							strBuff.append(new String(Base64.getDecoder().decode(splits[2]), splits[0]));
 						} else if ("Q".equals(splits[1])) {
-//							System.out.println("test");
 							strBuff.append(new String(MailUtil.decodeQ(splits[2]), splits[0]));
 						}
 					}
 				} catch (UnsupportedEncodingException e) {
-					e.printStackTrace();
-				} catch (Base64DecodingException e) {
 					e.printStackTrace();
 				}
 
