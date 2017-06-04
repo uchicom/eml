@@ -13,7 +13,7 @@ public class ResourceUtil {
 
 	/** リソースバンドル */
 	public static final ResourceBundle resourceBundle = ResourceBundle
-			.getBundle("com.uchicom.natto.resource");
+			.getBundle("com.uchicom.eml.resource");
 
 	/**
 	 * リソースから文字列を取得する.

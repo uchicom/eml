@@ -1,8 +1,6 @@
 // (c) 2014 uchicom
 package com.uchicom.eml.window;
 
-import java.awt.BorderLayout;
-import java.awt.Container;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.FileInputStream;
@@ -12,31 +10,28 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JTabbedPane;
 
+import com.uchicom.eml.Constants;
 import com.uchicom.eml.action.AccountConfigAction;
 import com.uchicom.eml.action.ConfigAction;
 import com.uchicom.eml.action.GetAction;
 import com.uchicom.eml.core.Account;
+import com.uchicom.eml.entity.ServerInfo;
+import com.uchicom.eml.util.ResourceUtil;
 
 public class MailFrame extends JFrame {
-
-
-
-	private JButton searchButton = new JButton(new GetAction(this));
 
 	List<Account> accountList = new ArrayList<>();
 
 	private Properties config = new Properties();
 
-
 	public MailFrame(String[] args) {
-		super("EML");
+		super(ResourceUtil.getString(Constants.APPLICATION_TITLE));
 		loadProperties();
 		loadAccount();
 		initComponents(args);
@@ -46,27 +41,30 @@ public class MailFrame extends JFrame {
 	 * アカウント情報読み込み
 	 */
 	private void loadAccount() {
-		createAccountList().forEach(account->{
+		createAccountList().forEach(account -> {
 			// 検索済みのメールをロードする。
 			account.loadMail();
 			// UIDLマップをロードする。
 			account.loadUidlMap();
 		});
 	}
+
 	/**
 	 * アカウント情報リストを取得します
 	 */
 	private List<Account> createAccountList() {
-		//プロパティからアカウント情報抽出（パスワードは暗号化しておかないと）
-		//gzipプロパティにして暗号化
-		String accountKyes = config.getProperty("accounts");
+		// プロパティからアカウント情報抽出（パスワードは暗号化しておかないと）
+		// gzipプロパティにして暗号化
+		String accountKyes = config.getProperty(Constants.PROP_ACCOUNTS);
 		if (accountKyes != null) {
 			for (String key : accountKyes.split(",")) {
-				Account account = new Account(config.getProperty(key + ".name"),
-						config.getProperty(key + ".user"),
-						config.getProperty(key + ".domain"),
-						config.getProperty(key + ".password"),
-						config.getProperty(key + ".path"));
+				String accountKey = Constants.PROP_ACCOUNT + key;
+				Account account = new Account(config.getProperty(accountKey + Constants.PROP_NAME),
+						config.getProperty(accountKey + Constants.PROP_USER),
+						config.getProperty(accountKey + Constants.PROP_PASSWORD),
+						config.getProperty(accountKey + Constants.PROP_PATH),
+						createServerInfo(config.getProperty(accountKey + Constants.PROP_RECEIVE)),
+						createServerInfo(config.getProperty(accountKey + Constants.PROP_SEND)));
 				if (checkInput(account)) {
 					accountList.add(account);
 				}
@@ -75,15 +73,23 @@ public class MailFrame extends JFrame {
 		}
 		return accountList;
 	}
+
+	private ServerInfo createServerInfo(String key) {
+		String serverKey = "server." + key;
+		return new ServerInfo(config.getProperty(serverKey + Constants.PROP_NAME),
+				config.getProperty(serverKey + Constants.PROP_HOST),
+				Integer.parseInt(config.getProperty(serverKey + Constants.PROP_PORT)),
+				Boolean.parseBoolean(config.getProperty(serverKey + Constants.PROP_SSL)));
+	}
+
 	/**
 	 * 入力内容チェック
+	 *
 	 * @param account
 	 * @return
 	 */
 	private boolean checkInput(Account account) {
 		if (account.getUser() == null) {
-			return false;
-		} else if (account.getDomain() == null) {
 			return false;
 		} else if (account.getName() == null) {
 			return false;
@@ -93,12 +99,13 @@ public class MailFrame extends JFrame {
 			return true;
 		}
 	}
+
 	/**
 	 * 検索処理
 	 */
 	public void search() {
-		accountList.forEach((account)-> {
-			Thread thread = new Thread(()->{
+		accountList.forEach((account) -> {
+			Thread thread = new Thread(() -> {
 				account.downloadAllMail();
 			});
 			thread.setDaemon(true);
@@ -110,7 +117,7 @@ public class MailFrame extends JFrame {
 	 * プロパティファイル読込
 	 */
 	private void loadProperties() {
-		try (FileInputStream fis = new FileInputStream("conf/eml.properties")) {
+		try (FileInputStream fis = new FileInputStream(Constants.CONFIG_FILE)) {
 			config.load(fis);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -118,8 +125,10 @@ public class MailFrame extends JFrame {
 			e.printStackTrace();
 		}
 	}
+
 	/**
 	 * 画面初期化
+	 *
 	 * @param args
 	 */
 	private void initComponents(String[] args) {
@@ -129,29 +138,19 @@ public class MailFrame extends JFrame {
 		addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
-				//終了処理
-				accountList.forEach((account)-> {
+				// 終了処理
+				accountList.forEach((account) -> {
 					account.saveUidlMap();
 				});
 			}
 		});
-//		JPanel northPanel = new JPanel(new GridLayout(1, 4));
-//		northPanel.add(domainField);
-//		northPanel.add(userField);
-//		northPanel.add(passwordField);
-//		northPanel.add(searchButton);
-
-		Container root = getContentPane();
-		root.setLayout(new BorderLayout());
-//		root.add(northPanel, BorderLayout.NORTH);
-
 
 
 		JTabbedPane pane = new JTabbedPane();
-		accountList.forEach((account)-> {
+		accountList.forEach((account) -> {
 			pane.add(account.getName(), account.dispList());
 		});
-		getContentPane().add(pane, BorderLayout.CENTER);
+		getContentPane().add(pane);
 
 		pack();
 
@@ -159,27 +158,24 @@ public class MailFrame extends JFrame {
 
 	/**
 	 * メニュー作成
+	 *
 	 * @return
 	 */
 	public JMenuBar createJMenuBar() {
 		JMenuBar menuBar = new JMenuBar();
-		JMenu menu = new JMenu("ファイル");
+		JMenu menu = new JMenu(ResourceUtil.getString(Constants.MENU_NAME_FILE));
 		JMenuItem menuItem = new JMenuItem(new ConfigAction(this));
 		menu.add(menuItem);
 		menuItem = new JMenuItem(new AccountConfigAction(this));
 		menu.add(menuItem);
 		menuBar.add(menu);
-		menu = new JMenu("受信");
+		menu = new JMenu(ResourceUtil.getString(Constants.MENU_NAME_TRANSFER));
 		menuItem = new JMenuItem(new GetAction(this));
 		menu.add(menuItem);
 		menuBar.add(menu);
 
 		return menuBar;
 	}
-
-//	public boolean isArrival() {
-//		boolean arrival
-//	}
 
 	/**
 	 * アカウント画面表示

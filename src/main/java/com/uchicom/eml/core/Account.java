@@ -42,9 +42,12 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableColumn;
 
 import com.uchicom.eml.Constants;
+import com.uchicom.eml.entity.ServerInfo;
 import com.uchicom.eml.table.CellRenderer;
 import com.uchicom.eml.table.MailTableModel;
 import com.uchicom.eml.util.LineNumberView;
+import com.uchicom.eml.util.Pop3Util;
+import com.uchicom.eml.util.ResourceUtil;
 
 /**
  * @author uchicom: Shigeki Uchiyama
@@ -58,21 +61,19 @@ public class Account {
 
 	private JProgressBar progressBar = new JProgressBar();
 	private String name;
- 	private	String domain;
 	private String user;
 	private String password;
 	private String path;
-	private int pop3Port = Constants.DEFAULT_PORT_POP3;
-	private int smtpPort = Constants.DEFAULT_PORT_SMTP;
 
+	private ServerInfo receive;
+	private ServerInfo send;
 
 	private JLabel statusLabel = new JLabel();
 	private Map<String, String> uidlMap = new HashMap<String, String>();
 
-	public Account(String name, String user, String domain, String password, String path) {
+	public Account(String name, String user, String password, String path, ServerInfo receive, ServerInfo send) {
 		this.name = name;
 		this.user = user;
-		this.domain = domain;
 		this.password = password;
 		this.path = path;
 		if (path != null) {
@@ -81,28 +82,14 @@ public class Account {
 				file.mkdirs();
 			}
 		}
+		this.receive = receive;
+		this.send = send;
 	}
 	public String getName() {
 		return name;
 	}
 	public void setName(String name) {
 		this.name = name;
-	}
-	/**
-	 * domainを取得します.
-	 *
-	 * @return domain
-	 */
-	public String getDomain() {
-		return domain;
-	}
-	/**
-	 * domainを設定します.
-	 *
-	 * @param domain domain
-	 */
-	public void setDomain(String domain) {
-		this.domain = domain;
 	}
 	/**
 	 * userを取得します.
@@ -156,7 +143,7 @@ public class Account {
 
 	public void saveUidlMap() {
 
-		File uidlFile = new File(path, "uidl.map");
+		File uidlFile = new File(path, Constants.UIDLMAP);
 		ObjectOutputStream oos = null;
 		try {
 			if (!uidlFile.exists()) {
@@ -179,7 +166,7 @@ public class Account {
 	}
 
 	public void loadMail() {
-		File mailboxFile = new File(path, "mailbox");
+		File mailboxFile = new File(path, Constants.MAILBOX);
 		if (mailboxFile.exists()) {
 			File[] mails = mailboxFile.listFiles(new FileFilter() {
 
@@ -239,7 +226,7 @@ public class Account {
 
 			progressBar.setMinimum(0);
 			progressBar.setMaximum(100);
-			socket.connect(new InetSocketAddress(domain, pop3Port));
+			socket.connect(new InetSocketAddress(receive.getHost(), receive.getPort()));
 			now = System.currentTimeMillis();
 			System.out.println("connect:" + (now - start) + "[ms]");
 			start = System.currentTimeMillis();
@@ -247,9 +234,9 @@ public class Account {
 					socket.getInputStream()));
 			PrintStream ps = new PrintStream(socket.getOutputStream());
 			String line = br.readLine();
-
-			if (!login(br, ps, user, password)) {
-				quit(br, ps);
+			System.out.println("connect:" + line);
+			if (!Pop3Util.login(br, ps, user, password)) {
+				Pop3Util.quit(br, ps);
 			}
 
 			statusLabel.setText("LOGIN");
@@ -258,9 +245,9 @@ public class Account {
 			System.out.println("login:" + (now - start) + "[ms]");
 			start = System.currentTimeMillis();
 
-			int maxIndex = stat(br, ps);
+			int maxIndex = Pop3Util.stat(br, ps);
 			if (maxIndex < 1) {
-				quit(br, ps);
+				Pop3Util.quit(br, ps);
 			}
 
 			statusLabel.setText("STAT");
@@ -271,9 +258,9 @@ public class Account {
 
 			statusLabel.setText("新着チェック");
 			progressBar.setValue(3);
-			String id = uidl(br, ps, maxIndex);
+			String id = Pop3Util.uidl(br, ps, maxIndex);
 			if (id == null) {
-				quit(br, ps);
+				Pop3Util.quit(br, ps);
 			} else {
 				if (uidlMap.containsKey(id)) {
 					// 新しいメールはない。
@@ -287,7 +274,7 @@ public class Account {
 			progressBar.setValue(4);
 			statusLabel.setText("UIDL");
 
-			List<String> idList = uidl(br, ps);
+			List<String> idList = Pop3Util.uidl(br, ps);
 			List<String> retrList = new ArrayList<String>();
 			for (String uidl : idList) {
 				if (!uidlMap.containsKey(uidl)) {
@@ -300,7 +287,7 @@ public class Account {
 
 				progressBar.setValue(100);
 				statusLabel.setText("QUIT");
-				quit(br, ps);
+				Pop3Util.quit(br, ps);
 				return;
 			}
 			File mailboxFile = new File(path, "mailbox");
@@ -342,7 +329,7 @@ public class Account {
 			}
 			progressBar.setValue(100);
 			statusLabel.setText("QUIT");
-			quit(br, ps);
+			Pop3Util.quit(br, ps);
 //			 br.close();
 //			 ps.close();
 			progressBar.setVisible(false);
@@ -359,7 +346,7 @@ public class Account {
 		DefaultTableColumnModel columnModel = new DefaultTableColumnModel();
 		TableColumn column = null;
 		CellRenderer renderer = new CellRenderer();
-		String[] titles = new String[] { "No", "差出人", "送信日時", "タイトル", "添付" };
+		String[] titles = ResourceUtil.getStrings(Constants.TABLE_TITLES);
 		int[] widths = new int[] { 50, 200, 100, 400, 50 };
 
 		JTextField textField = new JTextField();
@@ -437,79 +424,7 @@ public class Account {
 		return root;
 	}
 
-	public boolean login(BufferedReader br, PrintStream ps, String username,
-			String password) throws IOException {
-		boolean success = false;
-		ps.print("USER " + username + "\r\n");
-		ps.flush();
-		String line = br.readLine();
-		if (isOK(line)) {
-			ps.print("PASS " + password + "\r\n");
-			ps.flush();
-			line = br.readLine();
-			if (isOK(line)) {
-				success = true;
-			}
-		}
-		return success;
-	}
-
-	public void quit(BufferedReader br, PrintStream ps) throws IOException {
-		ps.print("QUIT\r\n");
-		ps.flush();
-		System.out.println("QUIT:" + br.readLine());
-	}
-
-	public int stat(BufferedReader br, PrintStream ps) throws IOException {
-		ps.print("STAT\r\n");
-		ps.flush();
-		String line = br.readLine();
-		System.out.println("STAT" + line);
-		int index = -1;
-		if (isOK(line)) {
-			String[] splits = line.split(" ");
-			index = Integer.parseInt(splits[1]);
-		}
-		return index;
-	}
-
-	public String uidl(BufferedReader br, PrintStream ps, int index)
-			throws IOException {
-		ps.print("UIDL " + index + "\r\n");
-		ps.flush();
-		String line = br.readLine();
-		System.out.println("UIDL:" + line);
-		String id = null;
-
-		if (isOK(line)) {
-			String[] splits = line.split(" ");
-			id = splits[1];
-		}
-		return id;
-	}
-
-	public List<String> uidl(BufferedReader br, PrintStream ps)
-			throws IOException {
-		ps.print("UIDL\r\n");
-		ps.flush();
-		String line = br.readLine();
-		List<String> idList = new ArrayList<String>();
-		if (isOK(line)) {
-			line = br.readLine();
-			while (line != null && !".".equals(line)) {
-				String[] splits = line.split(" ");
-				idList.add(splits[1]);
-				line = br.readLine();
-			}
-		}
-		return idList;
-	}
-
-	public boolean isOK(String line) {
-		return line != null && line.startsWith("+OK");
-	}
-
-	public String createName(String uidl) {
+	public static String createName(String uidl) {
 		StringBuffer strBuff = new StringBuffer(uidl.length() * 2 + 4);
 		for (byte uidlByte : uidl.getBytes()) {
 			strBuff.append(Integer.toHexString(uidlByte));

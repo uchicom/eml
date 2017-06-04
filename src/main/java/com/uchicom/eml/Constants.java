@@ -1,6 +1,8 @@
 //(c) 2014 uchicom
 package com.uchicom.eml;
 
+import java.io.File;
+
 /**
  * 定数クラス.
  *
@@ -8,6 +10,7 @@ package com.uchicom.eml;
  *
  */
 public class Constants {
+	public static final File CONFIG_FILE = new File("conf/eml.properties");
 
 	// リソースキー
 	/** アプリケーションのタイトル */
@@ -30,6 +33,10 @@ public class Constants {
 
 	/** ヘルプメニュー名 */
 	public static final String MENU_NAME_HELP = "menu.name.help";
+	/** ファイルメニュー名 */
+	public static final String MENU_NAME_FILE = "menu.name.file";
+	/** 送受信メニュー名 */
+	public static final String MENU_NAME_TRANSFER = "menu.name.transfer";
 
 	/** 文字列ラベル */
 	public static final String LABEL_STRING = "label.string";
@@ -46,7 +53,25 @@ public class Constants {
 	/** このアプリケーションについての参照URL */
 	public static final String URL_ABOUT = "url.about";
 
+	public static final String TABLE_TITLES = "table.titles";
 
+	//プロパティキー
+	public static String PROP_ACCOUNTS = "accounts";
+	public static String PROP_ACCOUNT = "account.";
+	public static String PROP_USER = ".user";
+	public static String PROP_NAME = ".name";
+	public static String PROP_PASSWORD = ".password";
+	public static String PROP_PATH = ".path";
+	public static String PROP_RECEIVE = ".receive";
+	public static String PROP_SEND = ".send";
+	public static String PROP_HOST = ".host";
+	public static String PROP_PORT = ".port";
+	public static String PROP_SSL = ".ssl";
+
+
+	//パス
+	public static String MAILBOX = "mailbox";
+	public static String UIDLMAP = "uidl.map";
 
 	//初期値
 	public static int DEFAULT_PORT_POP3 = 8115;
