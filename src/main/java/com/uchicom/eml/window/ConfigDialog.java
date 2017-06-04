@@ -1,5 +1,5 @@
 // (c) 2014 uchicom
-package com.uchicom.eml;
+package com.uchicom.eml.window;
 
 import java.awt.Color;
 import java.awt.Dialog;
@@ -12,11 +12,13 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.TableColumn;
 
+import com.uchicom.eml.table.CellRenderer;
+
 /**
  * @author uchicom: Shigeki Uchiyama
  *
  */
-public class AccountConfigDialog extends Dialog {
+public class ConfigDialog extends Dialog {
 
     /**
      *
@@ -26,24 +28,24 @@ public class AccountConfigDialog extends Dialog {
     /**
      * @param arg0
      */
-    public AccountConfigDialog(Frame arg0) {
-	super(arg0,true);
+    public ConfigDialog(Frame arg0) {
+	super(arg0);
 	initComponents();
-
     }
 
     private void initComponents() {
 	this.addWindowListener(new WindowAdapter() {
 	    public void windowClosing(WindowEvent e) {
-	       AccountConfigDialog.this.dispose();
+	       ConfigDialog.this.dispose();
 	    }
 	});
+	this.setTitle("設定");
 	DefaultTableColumnModel columnModel = new DefaultTableColumnModel();
 	TableColumn column = null;
 	CellRenderer renderer = new CellRenderer();
-	String[] titles = new String[]{"アカウント名", "ドメイン名", "ポート", "ユーザID","パスワード",  "APOP"};
-	int[] widths = new int[]{100, 100, 100, 100, 100};
-	for (int i = 0; i < 5; i++) {
+	String[] titles = new String[]{"設定値", "値"};
+	int[] widths = new int[]{100, 100};
+	for (int i = 0; i < titles.length; i++) {
 		column = new TableColumn();
 		column.setIdentifier(i);
 		column.setModelIndex(i);
@@ -53,17 +55,14 @@ public class AccountConfigDialog extends Dialog {
 		columnModel.addColumn(column);
 	}
 	String[][] data = new String[][] {
-		new String[]{"a", "c", "110", "e","パスワード",  "APOP"},
-		new String[]{"b", "d", "110", "f","パスワード",  "APOP"}
+		new String[]{"ボーダーカラー", "デフォルト値"},
+		new String[]{"文字の色", "#000000"},
+		new String[]{"文字のフォント", "Corier"},
+		new String[]{"業の高さ", "15"}
 	};
-	JTable table = new JTable(data, new String[]{"a", "b", "110", "d","パスワード",  "APOP"});
+	JTable table = new JTable(data, new String[]{"設定値",  "APOP"});
 	table.setColumnModel(columnModel);
-	table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-	table.setEnabled(false);
-	table.setGridColor(Color.WHITE);
+	table.setGridColor(Color.decode("#000000"));
 	add(new JScrollPane(table));
-	this.setTitle("アカウント設定");
     }
-
-
 }

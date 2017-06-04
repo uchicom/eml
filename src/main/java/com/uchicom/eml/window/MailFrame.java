@@ -1,9 +1,8 @@
 // (c) 2014 uchicom
-package com.uchicom.eml;
+package com.uchicom.eml.window;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
-import java.awt.GridLayout;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.FileInputStream;
@@ -18,12 +17,12 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
 import com.uchicom.eml.action.AccountConfigAction;
 import com.uchicom.eml.action.ConfigAction;
 import com.uchicom.eml.action.GetAction;
+import com.uchicom.eml.core.Account;
 
 public class MailFrame extends JFrame {
 
@@ -136,15 +135,15 @@ public class MailFrame extends JFrame {
 				});
 			}
 		});
-		JPanel northPanel = new JPanel(new GridLayout(1, 4));
+//		JPanel northPanel = new JPanel(new GridLayout(1, 4));
 //		northPanel.add(domainField);
 //		northPanel.add(userField);
 //		northPanel.add(passwordField);
-		northPanel.add(searchButton);
+//		northPanel.add(searchButton);
 
 		Container root = getContentPane();
 		root.setLayout(new BorderLayout());
-		root.add(northPanel, BorderLayout.NORTH);
+//		root.add(northPanel, BorderLayout.NORTH);
 
 
 
@@ -170,6 +169,10 @@ public class MailFrame extends JFrame {
 		menuItem = new JMenuItem(new AccountConfigAction(this));
 		menu.add(menuItem);
 		menuBar.add(menu);
+		menu = new JMenu("受信");
+		menuItem = new JMenuItem(new GetAction(this));
+		menu.add(menuItem);
+		menuBar.add(menu);
 
 		return menuBar;
 	}
@@ -178,12 +181,18 @@ public class MailFrame extends JFrame {
 //		boolean arrival
 //	}
 
+	/**
+	 * アカウント画面表示
+	 */
 	public void accountConfig() {
 		AccountConfigDialog dialog = new AccountConfigDialog(this);
 		dialog.pack();
 		dialog.setVisible(true);
 	}
 
+	/**
+	 * 設定画面表示
+	 */
 	public void config() {
 		ConfigDialog dialog = new ConfigDialog(this);
 		dialog.pack();

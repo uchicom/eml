@@ -5,7 +5,7 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 
-import com.uchicom.eml.MailFrame;
+import com.uchicom.eml.window.MailFrame;
 
 /**
  * @author uchicom: Shigeki Uchiyama

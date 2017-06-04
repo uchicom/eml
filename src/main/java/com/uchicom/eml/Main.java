@@ -3,6 +3,8 @@ package com.uchicom.eml;
 
 import javax.swing.SwingUtilities;
 
+import com.uchicom.eml.window.MailFrame;
+
 /**
  * 画面を起動するメインクラス. このメールの特徴は、タイトルや一覧の情報はキャッシュに置いておいて、
  * 基本はファイル管理。なので、メモリをあまり使用しない。というのが利点にしたい。

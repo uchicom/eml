@@ -1,11 +1,13 @@
 // (c) 2014 uchicom
-package com.uchicom.eml;
+package com.uchicom.eml.table;
 
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
 import javax.swing.table.DefaultTableModel;
+
+import com.uchicom.eml.core.Mail;
 
 public class MailTableModel extends DefaultTableModel {
 

@@ -1,5 +1,5 @@
 // (c) 2016 uchicom
-package com.uchicom.eml;
+package com.uchicom.eml.core;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -41,6 +41,9 @@ import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableColumn;
 
+import com.uchicom.eml.Constants;
+import com.uchicom.eml.table.CellRenderer;
+import com.uchicom.eml.table.MailTableModel;
 import com.uchicom.eml.util.LineNumberView;
 
 /**

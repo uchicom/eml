@@ -1,5 +1,5 @@
 // (c) 2014 uchicom
-package com.uchicom.eml;
+package com.uchicom.eml.core;
 
 import java.io.BufferedReader;
 import java.io.File;

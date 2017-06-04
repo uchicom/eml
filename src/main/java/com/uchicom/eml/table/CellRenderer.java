@@ -1,5 +1,5 @@
 // (c) 2014 uchicom
-package com.uchicom.eml;
+package com.uchicom.eml.table;
 
 import java.awt.Color;
 import java.awt.Component;
