@@ -13,6 +13,8 @@ public class Constants {
 	public static final File CONFIG_FILE = new File("conf/eml.properties");
 
 	public static final String PROP_KEY_EML = "eml";
+	public static final String PROP_KEY_EML_CONFIG = "emlConfig";
+	public static final String PROP_KEY_EML_ACCOUNT = "emlAccount";
 	// リソースキー
 	/** アプリケーションのタイトル */
 	public static final String APPLICATION_TITLE = "application.title";

@@ -179,7 +179,7 @@ public class MailFrame extends ResumeFrame {
 	 * アカウント画面表示
 	 */
 	public void accountConfig() {
-		AccountConfigDialog dialog = new AccountConfigDialog(this);
+		AccountConfigDialog dialog = new AccountConfigDialog(config, Constants.PROP_KEY_EML_ACCOUNT);
 		dialog.pack();
 		dialog.setVisible(true);
 	}
@@ -188,7 +188,7 @@ public class MailFrame extends ResumeFrame {
 	 * 設定画面表示
 	 */
 	public void config() {
-		ConfigDialog dialog = new ConfigDialog(this);
+		ConfigDialog dialog = new ConfigDialog(config, Constants.PROP_KEY_EML_CONFIG);
 		dialog.pack();
 		dialog.setVisible(true);
 	}
