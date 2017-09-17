@@ -8,9 +8,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 
-import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -23,15 +21,14 @@ import com.uchicom.eml.action.GetAction;
 import com.uchicom.eml.core.Account;
 import com.uchicom.eml.entity.ServerInfo;
 import com.uchicom.eml.util.ResourceUtil;
+import com.uchicom.ui.ResumeFrame;
 
-public class MailFrame extends JFrame {
+public class MailFrame extends ResumeFrame {
 
 	List<Account> accountList = new ArrayList<>();
 
-	private Properties config = new Properties();
-
 	public MailFrame(String[] args) {
-		super(ResourceUtil.getString(Constants.APPLICATION_TITLE));
+		super(Constants.CONFIG_FILE, Constants.PROP_KEY_EML);
 		loadProperties();
 		loadAccount();
 		initComponents(args);
@@ -132,6 +129,7 @@ public class MailFrame extends JFrame {
 	 * @param args
 	 */
 	private void initComponents(String[] args) {
+		setTitle(ResourceUtil.getString(Constants.APPLICATION_TITLE));
 		// メニュー設定
 		setJMenuBar(createJMenuBar());
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);

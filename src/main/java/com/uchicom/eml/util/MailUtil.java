@@ -149,7 +149,7 @@ public class MailUtil {
 			} else if ("quoted-printable".equals(contentTransferEncoding.toLowerCase())) {
 				decoded = new String(MailUtil.decodeQ(encoded), charset);
 			} else if ("base64".equals(contentTransferEncoding.toLowerCase())) {
-				decoded = new String(Base64.getDecoder().decode(encoded), charset);
+				decoded = new String(Base64.getMimeDecoder().decode(encoded), charset);
 			} else {
 				decoded = new String(encoded.getBytes(), charset);
 			}
