@@ -5,7 +5,7 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 
-import com.uchicom.eml.window.MailFrame;
+import com.uchicom.eml.window.MailListFrame;
 
 /**
  * @author uchicom: Shigeki Uchiyama
@@ -13,9 +13,9 @@ import com.uchicom.eml.window.MailFrame;
  */
 public class ConfigAction extends AbstractAction {
 
-    private MailFrame mailFrame;
-    public ConfigAction(MailFrame mailFrame) {
-	this.mailFrame = mailFrame;
+    private MailListFrame mailListFrame;
+    public ConfigAction(MailListFrame mailListFrame) {
+	this.mailListFrame = mailListFrame;
 	putValue(NAME, "設定");
     }
     /* (non-Javadoc)
@@ -23,7 +23,7 @@ public class ConfigAction extends AbstractAction {
      */
     @Override
     public void actionPerformed(ActionEvent arg0) {
-	mailFrame.config();
+	mailListFrame.config();
     }
 
 }

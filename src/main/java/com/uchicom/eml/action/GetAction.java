@@ -5,12 +5,12 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 
-import com.uchicom.eml.window.MailFrame;
+import com.uchicom.eml.window.MailListFrame;
 
 public class GetAction extends AbstractAction {
 
-	MailFrame frame;
-	public GetAction(MailFrame frame) {
+	MailListFrame frame;
+	public GetAction(MailListFrame frame) {
 		putValue(NAME, "取得");
 		this.frame = frame;
 	}

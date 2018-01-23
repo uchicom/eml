@@ -4,7 +4,6 @@ package com.uchicom.eml.core;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.GridLayout;
-import java.awt.Insets;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
@@ -29,13 +28,11 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 import javax.swing.DefaultCellEditor;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.TableCellEditor;
@@ -45,9 +42,9 @@ import com.uchicom.eml.Constants;
 import com.uchicom.eml.entity.ServerInfo;
 import com.uchicom.eml.table.CellRenderer;
 import com.uchicom.eml.table.MailTableModel;
-import com.uchicom.eml.util.LineNumberView;
 import com.uchicom.eml.util.Pop3Util;
 import com.uchicom.eml.util.ResourceUtil;
+import com.uchicom.eml.window.MailFrame;
 
 /**
  * @author uchicom: Shigeki Uchiyama
@@ -387,23 +384,8 @@ public class Account {
 					Mail mail = model.getRow(table.getSelectedRow());
 					try (BufferedReader reader = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(mail.getFile()))))) {
 						mail = Mail.analyze(reader, null, true);
-						JTextArea area = new JTextArea(mail.getBody());
-						area.setEditable(false);
-						Insets inset = area.getInsets();
-						inset.left = 5;
-						inset.right = 5;
-						area.setMargin(inset);
-
-						LineNumberView view = new LineNumberView(area);
-						JScrollPane pane = new JScrollPane(area);
-						pane.setRowHeaderView(view);
-						pane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-
-						JFrame frame = new JFrame(mail.getSubject());
-						frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-						frame.getContentPane().add(pane);
-						frame.pack();
-						frame.setVisible(true);
+						MailFrame mailFrame = new MailFrame(mail);
+						mailFrame.setVisible(true);
 					} catch (FileNotFoundException e1) {
 						// TODO 自動生成された catch ブロック
 						e1.printStackTrace();
