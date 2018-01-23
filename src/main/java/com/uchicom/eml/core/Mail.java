@@ -19,10 +19,20 @@ import com.uchicom.eml.util.MailUtil;
  */
 public class Mail {
 
-	public static SimpleDateFormat format = new SimpleDateFormat(
-			"EEE, d MMM yyyy HH:mm:ss Z", Locale.ENGLISH);
-	public static SimpleDateFormat format2 = new SimpleDateFormat("d MMM yyyy HH:mm:ss Z",
-			Locale.ENGLISH);
+	public static final ThreadLocal<SimpleDateFormat> DATE_FORMAT = new ThreadLocal<SimpleDateFormat>() {
+		@Override
+		protected SimpleDateFormat initialValue() {
+			return new SimpleDateFormat(
+					"EEE, d MMM yyyy HH:mm:ss Z", Locale.ENGLISH);
+		}
+	};
+	public static final ThreadLocal<SimpleDateFormat> DATE_FORMAT2 = new ThreadLocal<SimpleDateFormat>() {
+		@Override
+		protected SimpleDateFormat initialValue() {
+			return new SimpleDateFormat("d MMM yyyy HH:mm:ss Z",
+					Locale.ENGLISH);
+		}
+	};
 	private static final int NONE = 0;
 	private static final int SUBJECT = 1;
 	private static final int BODY = 2;
@@ -92,7 +102,7 @@ public class Mail {
 			if (subject.indexOf("=?") >= 0) {
 				this.subject = MailUtil.decode64(subject);
 			} else {
-				this.subject = MailUtil.decode(subject, encoding, charset);
+				this.subject = MailUtil.decode(subject, null, charset);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -177,7 +187,8 @@ public class Mail {
 		int count=0;
 		while ((line = br.readLine()) != null && !".".equals(line)) {
 			if (retentionBody && count < 50) {
-				System.out.println(line);count++;
+//				System.out.println(line);
+				count++;
 			}
 			if (!isBody && "".equals(line)) {
 				if (os == null && !retentionBody) {
@@ -206,14 +217,14 @@ public class Mail {
 				int comma = line.indexOf(',');
 				if (comma >= 0) {
 					try {
-						mail.setDate(format.parse(line.substring(5).trim()));
+						mail.setDate(DATE_FORMAT.get().parse(line.substring(5).trim()));
 					} catch (ParseException e) {
 						System.err.println(e.getMessage());
 					}
 				} else {
 
 					try {
-						mail.setDate(format2.parse(line.substring(6)));
+						mail.setDate(DATE_FORMAT2.get().parse(line.substring(6)));
 					} catch (ParseException e) {
 						System.err.println(e.getMessage());
 					}

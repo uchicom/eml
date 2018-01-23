@@ -40,8 +40,6 @@ public class MailUtil {
 				boundary = contentType.substring(boundaryStartIndex + 9).replaceAll("\"", "");
 			}
 		}
-		System.out.println(boundary);
-		System.out.println(contentType);
 		return boundary;
 	}
 	public static String decode64(String value) {
