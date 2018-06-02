@@ -63,7 +63,7 @@ public class Account {
 	private String path;
 
 	private ServerInfo receive;
-	private ServerInfo send;
+//	private ServerInfo send;
 
 	private JLabel statusLabel = new JLabel();
 	private Map<String, String> uidlMap = new HashMap<String, String>();
@@ -80,7 +80,7 @@ public class Account {
 			}
 		}
 		this.receive = receive;
-		this.send = send;
+//		this.send = send;
 	}
 	public String getName() {
 		return name;
@@ -292,9 +292,9 @@ public class Account {
 				mailboxFile.mkdirs();
 			}
 
-			char[] chars = new char[1024];
+//			char[] chars = new char[1024];
 			int iMaxList = retrList.size();
-			String hexTime = Long.toHexString(System.currentTimeMillis());
+//			String hexTime = Long.toHexString(System.currentTimeMillis());
 			for (int i = 0; i < iMaxList; i++) {
 
 				progressBar.setValue(4 + (i+1) * 96 / iMaxList);
@@ -350,6 +350,11 @@ public class Account {
 		textField.setEditable(false);
 		TableCellEditor selectableEditor = new DefaultCellEditor(textField) ;
 		TableCellEditor viewEditor = new DefaultCellEditor(new JTextField()) {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
 			public boolean isCellEditable(EventObject anEvent) {
 				return false;
 			}

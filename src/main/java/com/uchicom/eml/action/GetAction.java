@@ -8,6 +8,10 @@ import javax.swing.AbstractAction;
 import com.uchicom.eml.window.MailListFrame;
 
 public class GetAction extends AbstractAction {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	MailListFrame frame;
 	public GetAction(MailListFrame frame) {

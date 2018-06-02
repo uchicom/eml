@@ -10,6 +10,10 @@ import javax.swing.table.DefaultTableModel;
 import com.uchicom.eml.core.Mail;
 
 public class MailTableModel extends DefaultTableModel {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	private List<Mail> rowList;
 	public MailTableModel(List<Mail> rowList, int columnCount) {

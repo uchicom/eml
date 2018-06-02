@@ -12,6 +12,10 @@ import com.uchicom.eml.window.MailListFrame;
  *
  */
 public class ConfigAction extends AbstractAction {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
     private MailListFrame mailListFrame;
     public ConfigAction(MailListFrame mailListFrame) {

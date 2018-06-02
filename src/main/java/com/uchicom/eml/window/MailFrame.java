@@ -15,6 +15,10 @@ import com.uchicom.eml.util.LineNumberView;
  *
  */
 public class MailFrame extends JFrame {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	private Mail mail;
 	public MailFrame(Mail mail) {

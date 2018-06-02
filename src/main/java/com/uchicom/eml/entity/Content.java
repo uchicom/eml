@@ -19,6 +19,10 @@ public class Content {
 	private String body;
 	private String boundary;
 	private String fileName;
+	
+	public String getFileName() {
+		return fileName;
+	}
 	private List<Content> contentList;
 	/**
 	 * contentListを取得します.

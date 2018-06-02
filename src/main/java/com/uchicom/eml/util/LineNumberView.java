@@ -21,6 +21,10 @@ import javax.swing.text.Document;
 import javax.swing.text.Element;
 
 public class LineNumberView extends JComponent {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private static final int MARGIN = 5;
 	private final JTextArea textArea;
 	private final FontMetrics fontMetrics;

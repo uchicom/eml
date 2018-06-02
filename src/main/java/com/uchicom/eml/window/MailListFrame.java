@@ -24,6 +24,10 @@ import com.uchicom.eml.util.ResourceUtil;
 import com.uchicom.ui.ResumeFrame;
 
 public class MailListFrame extends ResumeFrame {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	List<Account> accountList = new ArrayList<>();
 
