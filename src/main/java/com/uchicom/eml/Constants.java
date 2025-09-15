@@ -1,4 +1,4 @@
-//(c) 2014 uchicom
+// (C) 2014 uchicom
 package com.uchicom.eml;
 
 import java.io.File;
@@ -7,77 +7,77 @@ import java.io.File;
  * 定数クラス.
  *
  * @author Shigeki Uchiyama
- *
  */
 public class Constants {
-	public static final File CONFIG_FILE = new File("conf/eml.properties");
+  public static final File CONFIG_FILE = new File("conf/eml.properties");
 
-	public static final String PROP_KEY_EML = "eml";
-	public static final String PROP_KEY_EML_CONFIG = "emlConfig";
-	public static final String PROP_KEY_EML_ACCOUNT = "emlAccount";
-	// リソースキー
-	/** アプリケーションのタイトル */
-	public static final String APPLICATION_TITLE = "application.title";
+  public static final String PROP_KEY_EML = "eml";
+  public static final String PROP_KEY_EML_CONFIG = "emlConfig";
+  public static final String PROP_KEY_EML_ACCOUNT = "emlAccount";
 
-	/** アプリケーションのバージョン */
-	public static final String APPLICATION_VERSION = "application.version";
+  // リソースキー
+  /** アプリケーションのタイトル */
+  public static final String APPLICATION_TITLE = "application.title";
 
-	/** このアプリケーションについてのアクション名 */
-	public static final String ACTION_NAME_ABOUT = "action.name.about";
+  /** アプリケーションのバージョン */
+  public static final String APPLICATION_VERSION = "application.version";
 
-	/** ヘルプ目次名のアクション名 */
-	public static final String ACTION_NAME_HELP = "action.name.help";
+  /** このアプリケーションについてのアクション名 */
+  public static final String ACTION_NAME_ABOUT = "action.name.about";
 
-	/** １６進数変換のアクション名 */
-	public static final String ACTION_NAME_CONVERT_HEX = "action.name.convert.hex";
+  /** ヘルプ目次名のアクション名 */
+  public static final String ACTION_NAME_HELP = "action.name.help";
 
-	/** 文字列変換のアクション名 */
-	public static final String ACTION_NAME_CONVERT_STRING = "action.name.convert.string";
+  /** １６進数変換のアクション名 */
+  public static final String ACTION_NAME_CONVERT_HEX = "action.name.convert.hex";
 
-	/** ヘルプメニュー名 */
-	public static final String MENU_NAME_HELP = "menu.name.help";
-	/** ファイルメニュー名 */
-	public static final String MENU_NAME_FILE = "menu.name.file";
-	/** 送受信メニュー名 */
-	public static final String MENU_NAME_TRANSFER = "menu.name.transfer";
+  /** 文字列変換のアクション名 */
+  public static final String ACTION_NAME_CONVERT_STRING = "action.name.convert.string";
 
-	/** 文字列ラベル */
-	public static final String LABEL_STRING = "label.string";
+  /** ヘルプメニュー名 */
+  public static final String MENU_NAME_HELP = "menu.name.help";
 
-	/** １６進数ラベル */
-	public static final String LABEL_HEX = "label.hex";
+  /** ファイルメニュー名 */
+  public static final String MENU_NAME_FILE = "menu.name.file";
 
-	/** 変換キャラクタセットのカンマ区切り文字列 */
-	public static final String CHARSETS = "charsets";
+  /** 送受信メニュー名 */
+  public static final String MENU_NAME_TRANSFER = "menu.name.transfer";
 
-	/** ヘルプの参照URL */
-	public static final String URL_HELP = "url.help";
+  /** 文字列ラベル */
+  public static final String LABEL_STRING = "label.string";
 
-	/** このアプリケーションについての参照URL */
-	public static final String URL_ABOUT = "url.about";
+  /** １６進数ラベル */
+  public static final String LABEL_HEX = "label.hex";
 
-	public static final String TABLE_TITLES = "table.titles";
+  /** 変換キャラクタセットのカンマ区切り文字列 */
+  public static final String CHARSETS = "charsets";
 
-	//プロパティキー
-	public static String PROP_ACCOUNTS = "accounts";
-	public static String PROP_ACCOUNT = "account.";
-	public static String PROP_USER = ".user";
-	public static String PROP_NAME = ".name";
-	public static String PROP_PASSWORD = ".password";
-	public static String PROP_PATH = ".path";
-	public static String PROP_RECEIVE = ".receive";
-	public static String PROP_SEND = ".send";
-	public static String PROP_HOST = ".host";
-	public static String PROP_PORT = ".port";
-	public static String PROP_SSL = ".ssl";
+  /** ヘルプの参照URL */
+  public static final String URL_HELP = "url.help";
 
+  /** このアプリケーションについての参照URL */
+  public static final String URL_ABOUT = "url.about";
 
-	//パス
-	public static String MAILBOX = "mailbox";
-	public static String UIDLMAP = "uidl.map";
+  public static final String TABLE_TITLES = "table.titles";
 
-	//初期値
-	public static int DEFAULT_PORT_POP3 = 8115;
-	public static int DEFAULT_PORT_SMTP = 25;
+  // プロパティキー
+  public static String PROP_ACCOUNTS = "accounts";
+  public static String PROP_ACCOUNT = "account.";
+  public static String PROP_USER = ".user";
+  public static String PROP_NAME = ".name";
+  public static String PROP_PASSWORD = ".password";
+  public static String PROP_PATH = ".path";
+  public static String PROP_RECEIVE = ".receive";
+  public static String PROP_SEND = ".send";
+  public static String PROP_HOST = ".host";
+  public static String PROP_PORT = ".port";
+  public static String PROP_SSL = ".ssl";
 
+  // パス
+  public static String MAILBOX = "mailbox";
+  public static String UIDLMAP = "uidl.map";
+
+  // 初期値
+  public static int DEFAULT_PORT_POP3 = 8115;
+  public static int DEFAULT_PORT_SMTP = 25;
 }
